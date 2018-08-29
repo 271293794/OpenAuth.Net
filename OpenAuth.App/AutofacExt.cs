@@ -30,19 +30,23 @@ namespace OpenAuth.App
 
         public static void InitAutofac()
         {
+
+
+
             var builder = new ContainerBuilder();
 
             //注册数据库基础操作和工作单元
             builder.RegisterGeneric(typeof(BaseRepository<>)).As(typeof(IRepository<>)).PropertiesAutowired();
             builder.RegisterType(typeof(UnitWork)).As(typeof(IUnitWork)).PropertiesAutowired();
 
-            //注册app层
+            //注册app层 
             builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly()).PropertiesAutowired();
 
-            // 注册controller，使用属性注入
+            // 注册controller，使用属性注入  （方法GetCallingAssembly：获取当前程序集被调用的上级程序集的信息）
+            // 这里返回的是 OpenAuth.Mvc 程序集，因为在 OpenAuth.Mvc 的Global 文件中调用了InitAutofac方法。
             builder.RegisterControllers(Assembly.GetCallingAssembly()).PropertiesAutowired();
 
-            //注册所有的ApiControllers
+            // 注册所有的ApiControllers  
             builder.RegisterApiControllers(Assembly.GetCallingAssembly()).PropertiesAutowired();
 
             builder.RegisterModelBinders(Assembly.GetCallingAssembly());

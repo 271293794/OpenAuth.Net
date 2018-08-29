@@ -8,11 +8,11 @@ layui.config({
     var openauth = layui.openauth;
     var toplayer = (top == undefined || top.layer === undefined) ? layer : top.layer;  //顶层的LAYER
     layui.droptree("/UserSession/GetOrgs", "#Organizations", "#OrganizationIds");
-   
+   // 加载此模块（User）的按钮（菜单）
     $("#menus").loadMenus("User");
 
     //主列表加载，可反复调用进行刷新
-    var config= {};  //table的参数，如搜索key，点击tree的id
+    var config = {};  //table的参数，如orgId（组织ID），点击树列表
     var mainList = function (options) {
         if (options != undefined) {
             $.extend(config, options);
@@ -33,6 +33,7 @@ layui.config({
                     name: 'Name',
                     title: 'Name'
                 },
+                // 默认使用 id / pId 表示节点的父子包含关系，这里修正一下
                 simpleData: {
                     enable: true,
                     idKey: 'Id',
@@ -77,11 +78,12 @@ layui.config({
                 area: ["500px", "400px"],
                 type: 1,
                 content: $('#divEdit'),
+                // 弹出前事件
                 success: function() {
                     vm.$set('$data', data);
 
-                    $(":radio[name='Sex'][value='" + data.Sex + "']").prop("checked", "checked");
-                    $("input:checkbox[name='Status']").prop("checked", data.Status == 1);
+                     $(":radio[name='Sex'][value='" + data.Sex + "']").prop("checked", "checked");
+                     $("input:checkbox[name='Status']").prop("checked", data.Status == 1);
                     //下面这种方式适合单独开页面，不然上次选中的结果会对本次有影响
                    // $('input:checkbox[name="Status"][value="' + data.Status + '"]').prop('checked', true);
                     form.render();

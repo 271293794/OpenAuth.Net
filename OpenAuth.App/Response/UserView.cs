@@ -67,12 +67,18 @@ namespace OpenAuth.App.Response
         public string Organizations { get; set; }
 
         public string OrganizationIds { get; set; }
-
+        /// <summary>
+        /// 定义隐式转换，UserView为目标类型
+        /// </summary>
+        /// <param name="user">待转换对象</param>
         public static implicit operator UserView(User user)
         {
             return user.MapTo<UserView>();
         }
-
+        /// <summary>
+        ///  定义隐式转换，User为目标类型
+        /// </summary>
+        /// <param name="view">待转换对象</param>
         public static implicit operator User(UserView view)
         {
             return view.MapTo<User>();

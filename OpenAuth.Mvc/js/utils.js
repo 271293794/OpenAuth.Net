@@ -10,7 +10,12 @@ layui.define("jquery", function (exports) {
         if (r != null) return unescape(r[2]); return null;
     }
 
-    //把name/value的数组转为obj对象
+    /**
+     * [{name: "小丽", value: 22},{name: "Tom", value: 27}]
+     * {小丽: 22, Tom: 27}
+     * 把name/value 数组转化为 obj
+     * @param {Array} array
+     */
     $.arrayToObj = function (array) {
         var result = {};
         for (var i = 0; i < array.length; i++) {
@@ -24,7 +29,7 @@ layui.define("jquery", function (exports) {
         return result;
     }
 
-    //加载菜单
+    //加载传入模块的按钮（菜单），如【用户管理】模块的【添加】、【为用户分配角色】按钮
     $.fn.extend({
         loadMenus: function (modulecode) {
             var dom = $(this);

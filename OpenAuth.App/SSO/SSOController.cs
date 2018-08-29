@@ -25,7 +25,10 @@ namespace OpenAuth.App.SSO
     public class SSOController : Controller
     {
         public const string Token = "Token";
-
+        /// <summary>
+        /// 在调用操作方法前调用，可重定向。
+        /// </summary>
+        /// <param name="filterContext">过滤上下文对象</param>
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             var token = "";

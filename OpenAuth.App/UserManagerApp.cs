@@ -24,23 +24,26 @@ namespace OpenAuth.App
         public TableData Load(QueryUserListReq request)
         {
             var loginUser = AuthUtil.GetCurrentUser();
-
+            // 节点层次ID，如 【集团总部】为【.0.1.】
+            // 【研发部】为【.0.1.3.】，子节点【研发小组】为【.0.1.3.1.】
             string cascadeId = ".0.";
             if (!string.IsNullOrEmpty(request.orgId))
             {
                 var org = loginUser.Orgs.SingleOrDefault(u => u.Id == request.orgId);
                 cascadeId = org.CascadeId;
             }
-
+            // 用户所属部门ID数组
             var ids = loginUser.Orgs.Where(u => u.CascadeId.Contains(cascadeId)).Select(u => u.Id).ToArray();
+            // 与此用户同部门的所有用户的ID
             var userIds = ReleManagerApp.Get(Define.USERORG, false, ids);
 
             var users = UnitWork.Find<User>(u => userIds.Contains(u.Id))
                    .OrderBy(u => u.Name)
                    .Skip((request.page - 1) * request.limit)
                    .Take(request.limit);
-
+            // Repository 为父类【BaseApp<User>】中的属性
             var records = Repository.GetCount(u => userIds.Contains(u.Id));
+            
 
 
             var userviews = new List<UserView>();
@@ -64,6 +67,7 @@ namespace OpenAuth.App
         {
             if (string.IsNullOrEmpty(view.OrganizationIds))
                 throw new Exception("请为用户分配机构");
+            // 隐式转换，见【UserView】类，UserView类比 User 类多了部门信息
             User user = view;
             if (string.IsNullOrEmpty(view.Id))
             {
@@ -90,14 +94,25 @@ namespace OpenAuth.App
             string[] orgIds = view.OrganizationIds.Split(',').ToArray();
 
             ReleManagerApp.DeleteBy(Define.USERORG, user.Id);
+            // ToLookup方法：创建一个1 => n 的映射。 它可以方便的将数据分类成组
+            // 就像在字典中字母D对应很多字，如：邓、大、当
+            // 添加部门信息
             ReleManagerApp.AddRelevance(Define.USERORG, orgIds.ToLookup(u => user.Id));
         }
 
         /// <summary>
-        /// 加载用户的所有机构
+        /// 加载用户所属的所有机构
         /// </summary>
         public IEnumerable<Org> LoadByUser(string userId)
         {
+            /* 等价 SQL 
+             * SELECT  o.*
+             * FROM    [OpenAuthDB].[dbo].[Relevance] AS r
+             *         JOIN dbo.Org AS o ON r.SecondId = o.Id
+             * WHERE   r.FirstId = '6ba79766-faa0-4259-8139-a4a6d35784e0'
+             *         AND r.[Key] = 'UserOrg';
+             *
+             */
             var result = from userorg in UnitWork.Find<Relevance>(null)
                          join org in UnitWork.Find<Org>(null) on userorg.SecondId equals org.Id
                          where userorg.FirstId == userId && userorg.Key == Define.USERORG

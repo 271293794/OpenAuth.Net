@@ -47,7 +47,7 @@ namespace OpenAuth.App
                 uv.OrganizationIds = string.Join(",", orgs.Select(u => u.Id).ToList());
                 roleViews.Add(uv);
             }
-
+            
             return new TableData
             {
                 count = records,
